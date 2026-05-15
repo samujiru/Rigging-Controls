@@ -1,7 +1,3 @@
-Since you’ve finalized your list of controller shapes, I have updated the README to reflect those specific implementations. I’ve also categorized them so the distinction between a "Sphere" (wireframe circles) and a "Ball" (solid-looking curve points) is clear.
-
-Here is your revised README.md:
-
 Rigging Controller Tool for Maya
 Description
 The Rigging Controller Tool is a Python-based utility for Autodesk Maya designed to streamline the rigging process. This tool allows users to quickly generate a variety of NURBS curve shapes to serve as animation controllers.
