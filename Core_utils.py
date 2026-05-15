@@ -6,16 +6,6 @@ with customizable scales and automatic organizational grouping options.
 import maya.cmds as cmds
 
 def create_circle(name="ctrl_circle", radius=1.0, position=(0, 0, 0)):
-    """Create a NURBS circle controller.
-
-    Args:
-        name (str): Desired name for the Maya transform node.
-        radius (float): The size of the circle.
-        position (tuple): (x, y, z) position in world space.
-
-    Returns:
-        str: The name of the created transform node.
-    """
     #This line generates the NURBS circle and captures the transform name
     obj = cmds.circle(name=name, r=radius, ch=False)[0]
     #This line moves the controller to the specified position
@@ -23,16 +13,6 @@ def create_circle(name="ctrl_circle", radius=1.0, position=(0, 0, 0)):
     return obj
 
 def create_cube(name="ctrl_cube", scale=1.0, position=(0, 0, 0)):
-    """Create a 3D wireframe cube controller using a NURBS curve.
-
-    Args:
-        name (str): Desired name for the Maya transform node.
-        scale (float): Size multiplier for the cube.
-        position (tuple): (x, y, z) position in world space.
-
-    Returns:
-        str: The name of the created transform node.
-    """
     s = scale
     pts = [(-s,s,s), (s,s,s), (s,-s,s), (-s,-s,s), (-s,s,s), (-s,s,-s), (s,s,-s), 
            (s,-s,-s), (-s,-s,-s), (-s,s,-s), (-s,-s,-s), (-s,-s,s), (s,-s,s), 
@@ -45,16 +25,6 @@ def create_cube(name="ctrl_cube", scale=1.0, position=(0, 0, 0)):
     return obj
 
 def create_sphere(name="ctrl_sphere", radius=1.0, position=(0, 0, 0)):
-    """Create a wireframe sphere controller made of three circles.
-
-    Args:
-        name (str): Desired name for the Maya group node.
-        radius (float): The size of the sphere.
-        position (tuple): (x, y, z) position in world space.
-
-    Returns:
-        str: The name of the created group node.
-    """
     #These lines create three circles on different axes to form a sphere
     c1 = cmds.circle(nr=(1, 0, 0), r=radius, ch=False)[0]
     c2 = cmds.circle(nr=(0, 1, 0), r=radius, ch=False)[0]
@@ -67,16 +37,6 @@ def create_sphere(name="ctrl_sphere", radius=1.0, position=(0, 0, 0)):
     return obj
 
 def create_ball(name="ctrl_ball", scale=0.5, position=(0, 0, 0)):
-    """Create a diamond-shaped NURBS 'ball' controller.
-
-    Args:
-        name (str): Desired name for the Maya transform node.
-        scale (float): Size multiplier for the diamond.
-        position (tuple): (x, y, z) position in world space.
-
-    Returns:
-        str: The name of the created transform node.
-    """
     s = scale
     pts = [(0,s,0), (s,0,0), (0,0,s), (0,s,0), (-s,0,0), (0,0,s), (0,-s,0), (s,0,0)]
     
@@ -87,16 +47,6 @@ def create_ball(name="ctrl_ball", scale=0.5, position=(0, 0, 0)):
     return obj
 
 def create_gear(name="ctrl_gear", radius=1.0, position=(0, 0, 0)):
-    """Create a gear-shaped NURBS controller.
-
-    Args:
-        name (str): Desired name for the Maya transform node.
-        radius (float): The outer radius of the gear.
-        position (tuple): (x, y, z) position in world space.
-
-    Returns:
-        str: The name of the created transform node.
-    """
     #This line creates a high-span circle to act as the gear base
     obj = cmds.circle(name=name, degree=1, sections=16, r=radius, ch=False)[0]
     #This line moves the gear to the specified position
