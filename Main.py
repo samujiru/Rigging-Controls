@@ -15,38 +15,43 @@ import controller_utils
 import importlib
 importlib.reload(controller_utils)
 
-def build_controller(shape="circle", name="new_ctrl", use_group=True, pos=(0,0,0)):
-    node = None
+def build_controller(shape="circle", name="new", pos=(0,0,0)):
+    # This line automatically appends the '_ctrl' suffix to the base name of the NURBS Curve
+    full_ctrl_name = f"{name}_ctrl"
     
-    # These lines determine which utility function to call based on the shape argument
+    ctrl_node = None
+    
+    # These lines generate the geometry with the proper suffix
     if shape == "circle":
-        node = controller_utils.create_circle(name=name, position=pos)
+        ctrl_node = controller_utils.create_circle(name=full_ctrl_name)
     elif shape == "cube":
-        node = controller_utils.create_cube(name=name, position=pos)
+        ctrl_node = controller_utils.create_cube(name=full_ctrl_name)
     elif shape == "sphere":
-        node = controller_utils.create_sphere(name=name, position=pos)
-    elif shape == "ball":
-        node = controller_utils.create_ball(name=name, position=pos)
+        ctrl_node = controller_utils.create_sphere(name=full_ctrl_name)
+    elif shape == "pyramid":
+        ctrl_node = controller_utils.create_pyramid(name=full_ctrl_name)
     elif shape == "gear":
-        node = controller_utils.create_gear(name=name, position=pos)
+        ctrl_node = controller_utils.create_gear(name=full_ctrl_name)
         
     # This line creates the group using the original base name + '_o'
     offset_grp = cmds.group(ctrl_node, name=f"{name}_o")
-
+    
     # This line moves the group (and the child controller) to the target position
     cmds.move(pos[0], pos[1], pos[2], offset_grp)
-        
-    return node
+    
+    return offset_grp
 
 if __name__ == "__main__":
     # This line clears the current Maya scene for a fresh test
     cmds.file(new=True, force=True)
     
     # This list defines the types of controllers to generate for the test
-    test_list = ["circle", "cube", "sphere", "ball", "gear"]
+    test_list = ["circle", "cube", "sphere", "pyramid", "gear"]
     
-    # This loop iterates through the list to build each controller in the viewport
+    # This loop iterates through the list to build each controller and its group
     for i, shape_type in enumerate(test_list):
-        build_controller(shape=shape_type, name=f"test_{shape_type}", pos=(i*4, 0, 0))
+        # Test the naming convention: base name gives 'shape_ctrl' inside 'shape_o'
+        result = build_controller(shape=shape_type, name=shape_type, pos=(i*4, 0, 0))
+        print(f"Hierarchy Created: {result}")
     
-    print("Self-test complete: 5 controller types generated.")
+    print("Self-test complete: All controllers created with precise naming conventions.")
