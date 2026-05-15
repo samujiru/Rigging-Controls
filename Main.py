@@ -30,9 +30,11 @@ def build_controller(shape="circle", name="new_ctrl", use_group=True, pos=(0,0,0
     elif shape == "gear":
         node = controller_utils.create_gear(name=name, position=pos)
         
-    # This line creates an offset group for the controller if requested
-    if use_group and node:
-        node = cmds.group(node, name=f"{node}_OFFSET")
+    # This line creates the group using the original base name + '_o'
+    offset_grp = cmds.group(ctrl_node, name=f"{name}_o")
+
+    # This line moves the group (and the child controller) to the target position
+    cmds.move(pos[0], pos[1], pos[2], offset_grp)
         
     return node
 
