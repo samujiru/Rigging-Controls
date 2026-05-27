@@ -38,7 +38,14 @@ Planned Params: name, radius.
 
 Returns: str (Name of the top-level node).
 
-4. create_gear
+2. create_pyramid
+Description: Creates a 3D wireframe pyramid using a single continuous NURBS curve.
+
+Planned Params: name, scale.
+
+Returns: str (Name of the transform node).
+
+5. create_gear
 Description: Generates a custom NURBS shape with "teeth" to represent mechanical or rotational controls.
 
 Planned Params: name, teeth_count, inner_radius, outer_radius.
