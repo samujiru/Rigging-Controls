@@ -1,8 +1,9 @@
 Rigging Controller Tool for Maya
+
 Description
 The Rigging Controller Tool is a Python-based utility for Autodesk Maya designed to streamline the rigging process. This tool allows users to quickly generate a variety of NURBS curve shapes to serve as animation controllers.
 
-Key features include the ability to specify naming conventions and a toggle for "Offset Groups." This ensures that controllers are brought into the scene with "frozen" transformations, adhering to professional rigging standards by keeping the controller's channels at zero while the group handles the world-space positioning.
+You can specify naming conventions and a toggle for Offset Groups. This ensures that controllers are brought into the scene with frozen transformations, adhering to professional rigging standards by keeping the controller's channels at zero while the group handles the world-space positioning.
 
 File Structure
 The project is structured to ensure modularity and ease of maintenance:
@@ -37,14 +38,7 @@ Planned Params: name, radius.
 
 Returns: str (Name of the top-level node).
 
-4. create_ball
-Description: Creates a simplified "ball" or "point" controller, typically used for small joints or secondary controls.
-
-Planned Params: name, scale.
-
-Returns: str (Name of the transform node).
-
-5. create_gear
+4. create_gear
 Description: Generates a custom NURBS shape with "teeth" to represent mechanical or rotational controls.
 
 Planned Params: name, teeth_count, inner_radius, outer_radius.
