@@ -20,37 +20,17 @@ The following functions are implemented in core_utils.py. Every function include
 1. create_circle
 Description: Generates a standard 2D NURBS circle.
 
-Planned Params: name, radius, axis.
-
-Returns: str (Name of the transform node).
-
 2. create_cube
 Description: Creates a 3D wireframe box using a single continuous NURBS curve.
-
-Planned Params: name, scale.
-
-Returns: str (Name of the transform node).
 
 3. create_sphere
 Description: Generates a wireframe sphere consisting of three intersecting NURBS circles (XY, YZ, and ZX planes).
 
-Planned Params: name, radius.
-
-Returns: str (Name of the top-level node).
-
 2. create_pyramid
 Description: Creates a 3D wireframe pyramid using a single continuous NURBS curve.
 
-Planned Params: name, scale.
-
-Returns: str (Name of the transform node).
-
 5. create_gear
 Description: Generates a custom NURBS shape with "teeth" to represent mechanical or rotational controls.
-
-Planned Params: name, teeth_count, inner_radius, outer_radius.
-
-Returns: str (Name of the transform node).
 
 Technical Specifications
 Module Docstrings: Every .py file includes a header describing the file's purpose and author information.
