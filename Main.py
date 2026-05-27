@@ -6,10 +6,14 @@ import sys
 import os
 import maya.cmds as cmds
 
-# This block ensures Maya can find the controller_utils module in this folder
-path = os.path.dirname(__file__)
-if path not in sys.path:
-    sys.path.append(path)
+# This block ensures Maya can find the controller_utils module in this folder. If the file isn't found, then Maya will display a warning. 
+try:
+    path = os.path.dirname(__file__)
+    if path not in sys.path:
+        sys.path.append(path)
+except NameError:
+    print("# Warning: Running from an unsaved Script Editor tab. "
+          "Ensure controller_utils.py is inside your Maya scripts directory!")
 
 import controller_utils
 import importlib
@@ -33,6 +37,8 @@ def build_controller(shape="circle", name="new", pos=(0,0,0)):
     elif shape == "gear":
         ctrl_node = controller_utils.create_gear(name=full_ctrl_name)
         
+    #This line clears Maya's selection so no additional objects get grouped with the NURBS curves
+    cmds.select(cl=True)
     # This line creates the group using the original base name + '_o'
     offset_grp = cmds.group(ctrl_node, name=f"{name}_o")
     
