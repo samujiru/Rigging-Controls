@@ -20,11 +20,6 @@ Usage — run this from the Maya Script Editor:
 import sys
 import os
 
-# ---------------------------------------------------------------------------
-# sys.path — make sure Main.py (and controller_utils.py) are importable.
-# The try/except handles saved files (__file__ exists) vs an unsaved Script
-# Editor tab (__file__ raises NameError).
-# ---------------------------------------------------------------------------
 try:
     _scripts_dir = os.path.dirname(os.path.abspath(__file__))
     if _scripts_dir not in sys.path:
@@ -35,24 +30,14 @@ except NameError:
         sys.path.insert(0, _fallback)
     print("# Warning: __file__ not available — using fallback scripts path.")
 
-# ---------------------------------------------------------------------------
-# PySide6 and shiboken6  (Maya 2026 only — no PySide2 fallback needed)
-# ---------------------------------------------------------------------------
 from PySide6 import QtWidgets, QtCore, QtGui
 from shiboken6 import wrapInstance
 from maya.api import OpenMayaUI as omui
 
-# ---------------------------------------------------------------------------
-# Hot-reload Main so edits are picked up without restarting Maya
-# ---------------------------------------------------------------------------
 import Main as Main
 import importlib
 importlib.reload(Main)
 
-
-# ---------------------------------------------------------------------------
-# Helper — resolve Maya's Main window as a PySide6 QWidget
-# ---------------------------------------------------------------------------
 def _get_maya_Main_window():
     """Return Maya's Main window wrapped as a QWidget, or None on failure."""
     try:
@@ -62,10 +47,6 @@ def _get_maya_Main_window():
         print("# Warning: Could not resolve Maya Main window: {}".format(e))
         return None
 
-
-# ---------------------------------------------------------------------------
-# Dialog
-# ---------------------------------------------------------------------------
 class RiggingControllerUI(QtWidgets.QDialog):
     """Rigging Controller Builder — Main dialog window."""
 
@@ -87,9 +68,6 @@ class RiggingControllerUI(QtWidgets.QDialog):
         self.create_layout()
         self.create_connections()
 
-    # ------------------------------------------------------------------
-    # Widget creation
-    # ------------------------------------------------------------------
     def create_widgets(self):
         """Instantiate every UI control."""
 
@@ -129,9 +107,6 @@ class RiggingControllerUI(QtWidgets.QDialog):
             "QPushButton:pressed  { background-color: #3f5e3f; }"
         )
 
-    # ------------------------------------------------------------------
-    # Layout
-    # ------------------------------------------------------------------
     def create_layout(self):
         """Arrange widgets."""
         Main_layout = QtWidgets.QVBoxLayout(self)
@@ -156,15 +131,9 @@ class RiggingControllerUI(QtWidgets.QDialog):
 
         Main_layout.addWidget(self.build_btn)
 
-    # ------------------------------------------------------------------
-    # Connections
-    # ------------------------------------------------------------------
     def create_connections(self):
         self.build_btn.clicked.connect(self.on_build_clicked)
 
-    # ------------------------------------------------------------------
-    # Slot
-    # ------------------------------------------------------------------
     def on_build_clicked(self):
         """Read the UI values and call build_controller()."""
         shape      = self.shape_combo.currentText()
@@ -198,11 +167,6 @@ class RiggingControllerUI(QtWidgets.QDialog):
             )
 
 
-# ---------------------------------------------------------------------------
-# Singleton launcher
-# ---------------------------------------------------------------------------
-
-# Module-level reference keeps the window alive (prevents garbage collection)
 _rig_ui_instance = None
 
 
@@ -215,9 +179,6 @@ def show_ui():
     """
     global _rig_ui_instance
 
-    # Close any existing window.  Catch broadly — if the user already closed
-    # the window manually, the underlying C++ object is deleted and .close()
-    # raises a RuntimeError, not a NameError.
     try:
         _rig_ui_instance.close()
         _rig_ui_instance.deleteLater()
