@@ -6,9 +6,6 @@ import sys
 import os
 import maya.cmds as cmds
 
-# It's best to insert into sys.path *after* importing sys
-sys.path.insert(0, r"C:\Users\sgj01\OneDrive\Documents\maya\projects\default\scripts")
-
 # This block ensures Maya can find the controller_utils module in this folder. If the file isn't found, then Maya will display a warning. 
 try:
     path = os.path.dirname(__file__)
