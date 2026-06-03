@@ -2,10 +2,12 @@
 This is the main entry point for the Rigging Controller tool. It also provides a self-test to verify all controller types in the viewport.
 """
 
-sys.path.insert(0, r"C:\Users\sgj01\OneDrive\Documents\maya\projects\default\scripts")
 import sys
 import os
 import maya.cmds as cmds
+
+# It's best to insert into sys.path *after* importing sys
+sys.path.insert(0, r"C:\Users\sgj01\OneDrive\Documents\maya\projects\default\scripts")
 
 # This block ensures Maya can find the controller_utils module in this folder. If the file isn't found, then Maya will display a warning. 
 try:
@@ -43,7 +45,7 @@ def build_controller(shape="circle", name="new", pos=(0,0,0)):
         print(f"Error: Shape type '{shape}' not recognized.")
         return None
         
-    #This line clears Maya's selection so no additional objects get grouped with the NURBS curves
+    # This line clears Maya's selection so no additional objects get grouped with the NURBS curves
     cmds.select(cl=True)
     # This line creates the group using the original base name + '_o'
     offset_grp = cmds.group(ctrl_node, name=f"{name}_o")
