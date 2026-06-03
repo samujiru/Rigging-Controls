@@ -2,6 +2,7 @@
 This is the main entry point for the Rigging Controller tool. It also provides a self-test to verify all controller types in the viewport.
 """
 
+sys.path.insert(0, r"C:\Users\sgj01\OneDrive\Documents\maya\projects\default\scripts")
 import sys
 import os
 import maya.cmds as cmds
