@@ -7,9 +7,6 @@ curve and generate it.
 import sys
 import os
 
-# Safe path insertion AFTER sys is imported
-sys.path.insert(0, r"C:\Users\sgj01\OneDrive\Documents\maya\projects\default\scripts")
-
 # Dynamic UI framework selection to support Maya 2025/2026 (PySide6) and older versions (PySide2)
 try:
     from PySide6 import QtWidgets, QtCore, QtGui
