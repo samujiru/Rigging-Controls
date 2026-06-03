@@ -4,6 +4,7 @@ It allows users to select a shape, name it, choose its size without affecting th
 curve and geenrate it.
 """
 
+sys.path.insert(0, r"C:\Users\sgj01\OneDrive\Documents\maya\projects\default\scripts")
 import sys
 from PySide2 import QtWidgets, QtCore, QtGui
 
