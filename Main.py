@@ -36,6 +36,10 @@ def build_controller(shape="circle", name="new", pos=(0,0,0)):
         ctrl_node = controller_utils.create_pyramid(name=full_ctrl_name)
     elif shape == "gear":
         ctrl_node = controller_utils.create_gear(name=full_ctrl_name)
+
+    if not ctrl_node:
+        print(f"Error: Shape type '{shape}' not recognized.")
+        return None
         
     #This line clears Maya's selection so no additional objects get grouped with the NURBS curves
     cmds.select(cl=True)
@@ -44,6 +48,7 @@ def build_controller(shape="circle", name="new", pos=(0,0,0)):
     
     # This line moves the group (and the child controller) to the target position
     cmds.move(pos[0], pos[1], pos[2], offset_grp)
+    cmds.parent(ctrl_node, offset_grp)
     
     return offset_grp
 
