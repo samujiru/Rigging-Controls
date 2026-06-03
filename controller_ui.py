@@ -1,138 +1,229 @@
 """
-This module provides an interface for the Rigging Controller tool.  
-It allows users to select a shape, name it, choose its size without affecting the transformations of the
-curve and generate it.
+controller_ui.py
+----------------
+Rigging Controller Tool - UI Layer
+Author:  Your Name
+Purpose: PySide6 dialog for Maya 2026. Lets the artist pick a shape,
+         name it, set its size, toggle the offset group, and call
+         Main.build_controller() to create it in the scene.
+
+Maya version: 2026+  (PySide6 / shiboken6 only — PySide2 is not included
+                      in Maya 2026 and the try/except fallback has been removed)
+
+Usage — run this from the Maya Script Editor:
+    import controller_ui
+    import importlib
+    importlib.reload(controller_ui)
+    controller_ui.show_ui()
 """
 
 import sys
 import os
 
-# Dynamic UI framework selection to support Maya 2025/2026 (PySide6) and older versions (PySide2)
+# ---------------------------------------------------------------------------
+# sys.path — make sure Main.py (and controller_utils.py) are importable.
+# The try/except handles saved files (__file__ exists) vs an unsaved Script
+# Editor tab (__file__ raises NameError).
+# ---------------------------------------------------------------------------
 try:
-    from PySide6 import QtWidgets, QtCore, QtGui
-except ImportError:
-    from PySide2 import QtWidgets, QtCore, QtGui
+    _scripts_dir = os.path.dirname(os.path.abspath(__file__))
+    if _scripts_dir not in sys.path:
+        sys.path.insert(0, _scripts_dir)
+except NameError:
+    _fallback = r"C:\Users\sgj01\OneDrive\Documents\maya\projects\default\scripts"
+    if _fallback not in sys.path:
+        sys.path.insert(0, _fallback)
+    print("# Warning: __file__ not available — using fallback scripts path.")
 
-# This line brings in the main rigging script
-import Main
+# ---------------------------------------------------------------------------
+# PySide6 and shiboken6  (Maya 2026 only — no PySide2 fallback needed)
+# ---------------------------------------------------------------------------
+from PySide6 import QtWidgets, QtCore, QtGui
+from shiboken6 import wrapInstance
+from maya.api import OpenMayaUI as omui
+
+# ---------------------------------------------------------------------------
+# Hot-reload Main so edits are picked up without restarting Maya
+# ---------------------------------------------------------------------------
+import Main as Main
 import importlib
 importlib.reload(Main)
 
-# This line is in charge of the dialogue for the UI popup
+
+# ---------------------------------------------------------------------------
+# Helper — resolve Maya's Main window as a PySide6 QWidget
+# ---------------------------------------------------------------------------
+def _get_maya_Main_window():
+    """Return Maya's Main window wrapped as a QWidget, or None on failure."""
+    try:
+        ptr = omui.MQtUtil.MainWindow()
+        return wrapInstance(int(ptr), QtWidgets.QWidget)
+    except Exception as e:
+        print("# Warning: Could not resolve Maya Main window: {}".format(e))
+        return None
+
+
+# ---------------------------------------------------------------------------
+# Dialog
+# ---------------------------------------------------------------------------
 class RiggingControllerUI(QtWidgets.QDialog):
+    """Rigging Controller Builder — Main dialog window."""
+
+    WINDOW_TITLE = "Rig Controller Builder"
+    OBJECT_NAME  = "RigControllerBuilderUI"   # unique name required by Maya
+
     def __init__(self, parent=None):
         super(RiggingControllerUI, self).__init__(parent)
-        
-        self.setWindowTitle("Rig Controller Builder")
-        self.setMinimumWidth(300)
-        
-        # This line ensures the UI stays on top of the other Maya elements
-        self.setWindowFlags(QtCore.Qt.Window)
-        
+
+        self.setWindowTitle(self.WINDOW_TITLE)
+        self.setObjectName(self.OBJECT_NAME)
+        self.setMinimumWidth(320)
+
+        # PySide6 enums are true Python enums — must use the full path
+        # QtCore.Qt.Window  →  QtCore.Qt.WindowType.Window
+        self.setWindowFlags(QtCore.Qt.WindowType.Window)
+
         self.create_widgets()
         self.create_layout()
         self.create_connections()
-        
-    # This line initializes all of the UI elements  
+
+    # ------------------------------------------------------------------
+    # Widget creation
+    # ------------------------------------------------------------------
     def create_widgets(self):
-        # This line is for the UI dropdown menu
+        """Instantiate every UI control."""
+
+        # Shape dropdown
         self.shape_label = QtWidgets.QLabel("Controller Shape:")
         self.shape_combo = QtWidgets.QComboBox()
         self.shape_combo.addItems(["circle", "cube", "sphere", "pyramid", "gear"])
-        
-        # This line allows you to name your elements
+
+        # Base name
         self.name_label = QtWidgets.QLabel("Base Name:")
         self.name_input = QtWidgets.QLineEdit()
-        self.name_input.setPlaceholderText("e.g., hand, foot, spine")
-        
-        # This line allows you to control the size of your controller
-        self.size_label = QtWidgets.QLabel("Size/Scale:")
-        self.size_spin = QtWidgets.QDoubleSpinBox()
-        self.size_spin.setRange(0.1, 100.0)
+        self.name_input.setPlaceholderText("e.g. hand, foot, spine")
+
+        # Size
+        self.size_label = QtWidgets.QLabel("Size:")
+        self.size_spin  = QtWidgets.QDoubleSpinBox()
+        self.size_spin.setRange(0.01, 1000.0)
         self.size_spin.setValue(1.0)
         self.size_spin.setSingleStep(0.5)
-        
-        # This line applies any changes you've made and creates the control
+        self.size_spin.setDecimals(2)
+
+        # Offset group toggle
+        self.offset_grp_label    = QtWidgets.QLabel("Offset Group:")
+        self.offset_grp_checkbox = QtWidgets.QCheckBox("Create offset group (zero-out)")
+        self.offset_grp_checkbox.setChecked(True)
+        self.offset_grp_checkbox.setToolTip(
+            "Creates a '_GRP' node above the controller so its local channels "
+            "read zero while the group holds the world-space position."
+        )
+
+        # Build button
         self.build_btn = QtWidgets.QPushButton("Build Controller")
-        # This line darkens the button to match with Maya's UI
-        self.build_btn.setStyleSheet("background-color: #557a55; font-weight: bold; height: 30px;")
+        self.build_btn.setStyleSheet(
+            "QPushButton          { background-color: #557a55; color: #ffffff; "
+            "                       font-weight: bold; height: 30px; border-radius: 4px; }"
+            "QPushButton:hover    { background-color: #6a9b6a; }"
+            "QPushButton:pressed  { background-color: #3f5e3f; }"
+        )
 
-    # This line fits the widgets using a form and main layout  
+    # ------------------------------------------------------------------
+    # Layout
+    # ------------------------------------------------------------------
     def create_layout(self):
-        main_layout = QtWidgets.QVBoxLayout(self)
-        
-        # This line has the form layout for parameter inputs
-        form_layout = QtWidgets.QFormLayout()
-        form_layout.setSpacing(10)
-        form_layout.addRow(self.shape_label, self.shape_combo)
-        form_layout.addRow(self.name_label, self.name_input)
-        form_layout.addRow(self.size_label, self.size_spin)
-        
-        # This line adds to main layout
-        main_layout.addLayout(form_layout)
-        
-        # This line does some minor UI tweaks like adding a visual separator line
-        line = QtWidgets.QFrame()
-        line.setFrameShape(QtWidgets.QFrame.HLine)
-        line.setFrameShadow(QtWidgets.QFrame.Sunken)
-        main_layout.addWidget(line)
-        
-        # This line creates the build button
-        main_layout.addWidget(self.build_btn)
+        """Arrange widgets."""
+        Main_layout = QtWidgets.QVBoxLayout(self)
+        Main_layout.setSpacing(8)
+        Main_layout.setContentsMargins(12, 12, 12, 12)
 
-    # This line connects the UI signals to the function of the python methods  
+        form = QtWidgets.QFormLayout()
+        form.setSpacing(8)
+        form.addRow(self.shape_label,      self.shape_combo)
+        form.addRow(self.name_label,       self.name_input)
+        form.addRow(self.size_label,       self.size_spin)
+        form.addRow(self.offset_grp_label, self.offset_grp_checkbox)
+
+        Main_layout.addLayout(form)
+
+        # Visual separator
+        # PySide6 QFrame enums also moved — must use Shape.HLine / Shadow.Sunken
+        line = QtWidgets.QFrame()
+        line.setFrameShape(QtWidgets.QFrame.Shape.HLine)
+        line.setFrameShadow(QtWidgets.QFrame.Shadow.Sunken)
+        Main_layout.addWidget(line)
+
+        Main_layout.addWidget(self.build_btn)
+
+    # ------------------------------------------------------------------
+    # Connections
+    # ------------------------------------------------------------------
     def create_connections(self):
         self.build_btn.clicked.connect(self.on_build_clicked)
 
-    # This line receives the data from the UI, and runs them through the Main script  
+    # ------------------------------------------------------------------
+    # Slot
+    # ------------------------------------------------------------------
     def on_build_clicked(self):
-        shape = self.shape_combo.currentText()
-        name = self.name_input.text().strip()
-        size = self.size_spin.value()
-        
-        # This line applies a default name if left empty
+        """Read the UI values and call build_controller()."""
+        shape      = self.shape_combo.currentText()
+        name       = self.name_input.text().strip()
+        size       = self.size_spin.value()
+        offset_grp = self.offset_grp_checkbox.isChecked()
+
         if not name:
-            name = f"default_{shape}"
-            
+            name = "default_{}".format(shape)
+
         try:
-            # This line sets the position of the curve at the origin
-            result = Main.build_controller(shape=shape, name=name, pos=(0, 0, 0), size=size)
-            # This line prints a success message
-            QtWidgets.QMessageBox.information(self, "Success", f"Created hierarchy: {result}")
+            result = Main.build_controller(
+                shape=shape,
+                name=name,
+                pos=(0, 0, 0),
+                size=size,
+                offset_grp=offset_grp
+            )
+            ctrl_name = "{}_CTRL".format(name)
+            print("# Rig Controller Builder: created '{}'.".format(result))
+            QtWidgets.QMessageBox.information(
+                self,
+                "Controller Created",
+                "'{}' was added to the scene.".format(ctrl_name)
+            )
         except Exception as e:
-            QtWidgets.QMessageBox.critical(self, "Error", f"Failed to build controller.\nError: {str(e)}")
+            QtWidgets.QMessageBox.critical(
+                self,
+                "Build Failed",
+                "Could not create the controller.\n\nError:\n{}".format(str(e))
+            )
 
 
-# This block is responsible for keeping the UI window safely in Maya
-# It uses Maya's main window as the parent so this UI doesn't vanish behind it
+# ---------------------------------------------------------------------------
+# Singleton launcher
+# ---------------------------------------------------------------------------
+
+# Module-level reference keeps the window alive (prevents garbage collection)
+_rig_ui_instance = None
+
+
 def show_ui():
-    import maya.mel as mel
-    
-    try:
-        from maya.api import OpenMayaUI as omui
-        maya_main_window_ptr = omui.MQtUtil.mainWindow()
-        
-        # Dynamically import the correct shiboken version based on available PySide
-        try:
-            import shiboken6 as shiboken
-        except ImportError:
-            import shiboken
-            
-        parent_window = shiboken.wrapInstance(int(maya_main_window_ptr), QtWidgets.QWidget)
-    except Exception as e:
-        print(f"# Warning: Could not parent to Maya main window: {e}")
-        parent_window = None
+    """
+    Open the Rigging Controller Builder as a singleton dialog.
 
-    # Global variable to prevents multiple copies of the same window from popping up
-    global global_rig_ui
-    
+    Safe to call multiple times — the previous window is closed and
+    replaced so that hot-reloading the module always gives a fresh instance.
+    """
+    global _rig_ui_instance
+
+    # Close any existing window.  Catch broadly — if the user already closed
+    # the window manually, the underlying C++ object is deleted and .close()
+    # raises a RuntimeError, not a NameError.
     try:
-        global_rig_ui.close()
-        global_rig_ui.deleteLater()
-    except NameError:
+        _rig_ui_instance.close()
+        _rig_ui_instance.deleteLater()
+    except Exception:
         pass
 
-    # This line prevents Maya from forgetting your custom controls by tying it to a global variable
-    global_rig_ui = RiggingControllerUI(parent=parent_window)
-    # This line gives the window a size depending on the aspect ratio and size of your monitor
-    global_rig_ui.show()
+    parent = _get_maya_Main_window()
+    _rig_ui_instance = RiggingControllerUI(parent=parent)
+    _rig_ui_instance.show()
