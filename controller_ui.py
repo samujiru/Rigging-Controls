@@ -6,10 +6,15 @@ curve and generate it.
 
 import sys
 import os
-from PySide2 import QtWidgets, QtCore, QtGui
 
 # Safe path insertion after sys is imported
 sys.path.insert(0, r"C:\Users\sgj01\OneDrive\Documents\maya\projects\default\scripts")
+
+# Dynamic UI framework selection to support Maya 2025/2026 (PySide6) and older versions (PySide2)
+try:
+    from PySide6 import QtWidgets, QtCore, QtGui
+except ImportError:
+    from PySide2 import QtWidgets, QtCore, QtGui
 
 # This line brings in the main rigging script
 import Main
@@ -109,10 +114,16 @@ def show_ui():
     try:
         from maya.api import OpenMayaUI as omui
         maya_main_window_ptr = omui.MQtUtil.mainWindow()
-        # This line converts the pointer to PySide object
-        import shiboken
+        
+        # Dynamically import the correct shiboken version based on available PySide
+        try:
+            import shiboken6 as shiboken
+        except ImportError:
+            import shiboken
+            
         parent_window = shiboken.wrapInstance(int(maya_main_window_ptr), QtWidgets.QWidget)
-    except:
+    except Exception as e:
+        print(f"# Warning: Could not parent to Maya main window: {e}")
         parent_window = None
 
     # Global variable to prevents multiple copies of the same window from popping up
