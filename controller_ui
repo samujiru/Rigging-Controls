@@ -1,1 +1,13 @@
+"""
+This module provides an interface for the Rigging Controller tool.  
+It allows users to select a shape, name it, choose its size without affecting the transformations of the
+curve and geenrate it.
+"""
 
+import sys
+from PySide2 import QtWidgets, QtCore, QtGui
+
+#This line brings in 
+import Main
+import importlib
+importlib.reload(Main)
