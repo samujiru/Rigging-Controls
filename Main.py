@@ -16,6 +16,7 @@ except NameError:
           "Ensure controller_utils.py is inside your Maya scripts directory!")
 
 import controller_utils
+import controller_ui
 import importlib
 importlib.reload(controller_utils)
 
