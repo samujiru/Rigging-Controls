@@ -1,25 +1,12 @@
 """
-controller_ui.py
-----------------
-Rigging Controller Tool - UI Layer
-Author:  Your Name
-Purpose: PySide6 dialog for Maya 2026. Lets the artist pick a shape,
-         name it, set its size, toggle the offset group, and call
-         Main.build_controller() to create it in the scene.
-
-Maya version: 2026+  (PySide6 / shiboken6 only — PySide2 is not included
-                      in Maya 2026 and the try/except fallback has been removed)
-
-Usage — run this from the Maya Script Editor:
-    import controller_ui
-    import importlib
-    importlib.reload(controller_ui)
-    controller_ui.show_ui()
+This module has PySide6 dialog for Maya 2026. It lets the artist pick a shape,
+         name it, set its size, toggle the offset group, and call Main.build_controller() to create it in the scene.
 """
 
 import sys
 import os
 
+#This line gives the code a fallback in case the files aren't found
 try:
     _scripts_dir = os.path.dirname(os.path.abspath(__file__))
     if _scripts_dir not in sys.path:
@@ -38,8 +25,8 @@ import Main as Main
 import importlib
 importlib.reload(Main)
 
+#This line returns maya's main window wrapped as a QWidget
 def _get_maya_Main_window():
-    """Return Maya's Main window wrapped as a QWidget, or None on failure."""
     try:
         ptr = omui.MQtUtil.MainWindow()
         return wrapInstance(int(ptr), QtWidgets.QWidget)
@@ -47,11 +34,11 @@ def _get_maya_Main_window():
         print("# Warning: Could not resolve Maya Main window: {}".format(e))
         return None
 
+#This is the rigging controller builder
 class RiggingControllerUI(QtWidgets.QDialog):
-    """Rigging Controller Builder — Main dialog window."""
 
     WINDOW_TITLE = "Rig Controller Builder"
-    OBJECT_NAME  = "RigControllerBuilderUI"   # unique name required by Maya
+    OBJECT_NAME  = "RigControllerBuilderUI"
 
     def __init__(self, parent=None):
         super(RiggingControllerUI, self).__init__(parent)
@@ -60,8 +47,6 @@ class RiggingControllerUI(QtWidgets.QDialog):
         self.setObjectName(self.OBJECT_NAME)
         self.setMinimumWidth(320)
 
-        # PySide6 enums are true Python enums — must use the full path
-        # QtCore.Qt.Window  →  QtCore.Qt.WindowType.Window
         self.setWindowFlags(QtCore.Qt.WindowType.Window)
 
         self.create_widgets()
@@ -71,17 +56,17 @@ class RiggingControllerUI(QtWidgets.QDialog):
     def create_widgets(self):
         """Instantiate every UI control."""
 
-        # Shape dropdown
+        #These lines is the shape dropdown
         self.shape_label = QtWidgets.QLabel("Controller Shape:")
         self.shape_combo = QtWidgets.QComboBox()
         self.shape_combo.addItems(["circle", "cube", "sphere", "pyramid", "gear"])
 
-        # Base name
+        #These line is the base name
         self.name_label = QtWidgets.QLabel("Base Name:")
         self.name_input = QtWidgets.QLineEdit()
         self.name_input.setPlaceholderText("e.g. hand, foot, spine")
 
-        # Size
+        #These lines are for zize
         self.size_label = QtWidgets.QLabel("Size:")
         self.size_spin  = QtWidgets.QDoubleSpinBox()
         self.size_spin.setRange(0.01, 1000.0)
@@ -89,7 +74,7 @@ class RiggingControllerUI(QtWidgets.QDialog):
         self.size_spin.setSingleStep(0.5)
         self.size_spin.setDecimals(2)
 
-        # Offset group toggle
+        #These lines toggle the offset group
         self.offset_grp_label    = QtWidgets.QLabel("Offset Group:")
         self.offset_grp_checkbox = QtWidgets.QCheckBox("Create offset group (zero-out)")
         self.offset_grp_checkbox.setChecked(True)
@@ -98,7 +83,7 @@ class RiggingControllerUI(QtWidgets.QDialog):
             "read zero while the group holds the world-space position."
         )
 
-        # Build button
+        #These lines are for the build button
         self.build_btn = QtWidgets.QPushButton("Build Controller")
         self.build_btn.setStyleSheet(
             "QPushButton          { background-color: #557a55; color: #ffffff; "
@@ -107,8 +92,8 @@ class RiggingControllerUI(QtWidgets.QDialog):
             "QPushButton:pressed  { background-color: #3f5e3f; }"
         )
 
+         #These lines arrange the widgets
     def create_layout(self):
-        """Arrange widgets."""
         Main_layout = QtWidgets.QVBoxLayout(self)
         Main_layout.setSpacing(8)
         Main_layout.setContentsMargins(12, 12, 12, 12)
@@ -122,8 +107,7 @@ class RiggingControllerUI(QtWidgets.QDialog):
 
         Main_layout.addLayout(form)
 
-        # Visual separator
-        # PySide6 QFrame enums also moved — must use Shape.HLine / Shadow.Sunken
+        #These lines are for the visual separator
         line = QtWidgets.QFrame()
         line.setFrameShape(QtWidgets.QFrame.Shape.HLine)
         line.setFrameShadow(QtWidgets.QFrame.Shadow.Sunken)
@@ -134,8 +118,8 @@ class RiggingControllerUI(QtWidgets.QDialog):
     def create_connections(self):
         self.build_btn.clicked.connect(self.on_build_clicked)
 
+         #These lines read the UI values and call buld_controller()
     def on_build_clicked(self):
-        """Read the UI values and call build_controller()."""
         shape      = self.shape_combo.currentText()
         name       = self.name_input.text().strip()
         size       = self.size_spin.value()
@@ -170,6 +154,7 @@ class RiggingControllerUI(QtWidgets.QDialog):
 _rig_ui_instance = None
 
 
+#These lines open the rigging controller bulder as a singleton dialog
 def show_ui():
     """
     Open the Rigging Controller Builder as a singleton dialog.
