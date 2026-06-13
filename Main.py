@@ -20,7 +20,8 @@ import controller_ui
 import importlib
 importlib.reload(controller_utils)
 
-def build_controller(shape="circle", name="new", pos=(0,0,0)):
+def build_controller(shape="circle", name="new", pos=(0, 0, 0),
+                     size=1.0, offset_grp=True):
     # This line automatically appends the '_ctrl' suffix to the base name of the NURBS Curve
     full_ctrl_name = f"{name}_ctrl"
     
