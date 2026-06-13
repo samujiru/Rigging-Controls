@@ -5,6 +5,13 @@ The Rigging Controller Tool is a Python-based utility for Autodesk Maya designed
 
 You can specify naming conventions and a toggle for Offset Groups. This ensures that controllers are brought into the scene with frozen transformations, adhering to professional rigging standards by keeping the controller's channels at zero while the group handles the world-space positioning.
 
+How to operate
+Once all the files are in the script tab in Maya, paste the following lines into the script editor tab:
+import controller_ui
+import importlib
+importlib.reload(controller_ui)
+controller_ui.show_ui()
+
 File Structure
 The project is structured to ensure modularity and ease of maintenance:
 
